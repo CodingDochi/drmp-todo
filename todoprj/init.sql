@@ -1,0 +1,3 @@
+-- backend/init.sql
+GRANT ALL PRIVILEGES ON *.* TO 'myuser'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;

@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5      
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./todoprj/init.sql:/docker-entrypoint-initdb.d/init.sql  # 파일 경로 수정
+    networks:
+      - django-network
+
+  web:
+    build: ./todoprj
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./todoprj:/app
+      - ./todoprj/frontend/build/static:/app/static
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - django-network
+
+  frontend:
+    image: "node:22"
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./todoprj/frontend:/home/node/app
+      - ./todoprj/frontend/build:/home/node/app/build
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    command: "npm run build"
+
+volumes:
+  db_data:
+
+networks:
+  django-network:
