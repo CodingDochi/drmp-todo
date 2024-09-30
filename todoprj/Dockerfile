@@ -1,3 +1,4 @@
+
 # Dockerfile for Django
 
 FROM python:3.10
@@ -23,4 +24,6 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Run Django development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]
+RUN mkdir -p /app/build && chown -R root:root /app/build
+
